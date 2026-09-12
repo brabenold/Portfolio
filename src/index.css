@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background: #f2f2f7;
+  color: #1d1d1f;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.dark body {
+  background: #050507;
+  color: #f5f5f7;
+}
+
+::selection {
+  background: rgba(120, 120, 255, 0.3);
+}
+
+/* ---------- Liquid glass materials ---------- */
+
+.glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.72),
+    rgba(255, 255, 255, 0.42)
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 8px 32px rgba(31, 38, 135, 0.08);
+}
+
+.dark .glass {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 36, 0.66),
+    rgba(18, 18, 24, 0.5)
+  );
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.5)
+  );
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02),
+    0 12px 40px rgba(31, 38, 135, 0.09);
+  transition:
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.55s ease;
+}
+
+.dark .glass-card {
+  background: linear-gradient(
+    150deg,
+    rgba(34, 34, 42, 0.72),
+    rgba(16, 16, 22, 0.62)
+  );
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* specular streak that sweeps card on hover */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.dark .glass-card::before {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 60%
+  );
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 60px rgba(31, 38, 135, 0.16);
+}
+
+.dark .glass-card:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.glass-card:hover::before {
+  transform: translateX(120%);
+}
+
+/* ---------- Scroll reveal ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  filter: blur(8px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(18px, -14px) scale(1.08); }
+  66% { transform: translate(-14px, 10px) scale(0.94); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-drift { animation: drift 14s ease-in-out infinite; }
+
+.eq-bar {
+  transform-origin: bottom;
+  animation: eq 1.1s ease-in-out infinite;
+}
+
+/* ---------- Type helpers ---------- */
+
+.text-balance { text-wrap: balance; }
+
+.tracking-hero { letter-spacing: -0.045em; }
