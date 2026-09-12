@@ -1,4 +1,5 @@
 import GlassDefs from './components/GlassDefs'
+import NavLens from './components/NavLens'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Bento from './components/Bento'
@@ -11,6 +12,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <GlassDefs />
+      <NavLens />
       <Nav dark={dark} onToggle={toggle} />
       <Hero dark={dark} />
       <main>

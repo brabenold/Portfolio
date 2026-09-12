@@ -165,25 +165,30 @@ body {
   );
 }
 
-/* Nav pill — the shader draws the real refractive glass underneath while it
-   overlaps the hero canvas (html.nav-in-hero): the DOM layer stays nearly
-   invisible so the lens shows through. Off-canvas it falls back to frost. */
+/* Nav pill — a true refractive lens: the #nav-lens SVG filter displaces the
+   real page backdrop (same displacement-map technique as
+   liquid-glass-web-react). Falls back to frost where unsupported. */
 .nav-liquid {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow: 0 10px 36px rgba(31, 38, 135, 0.1);
-  transition:
-    background 0.4s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+@supports ((backdrop-filter: url("#x")) or (-webkit-backdrop-filter: url("#x"))) {
+  .nav-liquid {
+    -webkit-backdrop-filter: url(#nav-lens) saturate(150%);
+    backdrop-filter: url(#nav-lens) saturate(150%);
+  }
 }
 
 .dark .nav-liquid {
-  background: rgba(20, 20, 28, 0.1);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(20, 20, 28, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 10px 36px rgba(0, 0, 0, 0.4);
 }
 
@@ -205,27 +210,6 @@ body {
 
 .nav-liquid:hover::after {
   opacity: 1;
-}
-
-/* frosted fallback once the nav leaves the hero canvas */
-html:not(.nav-in-hero) .nav-liquid {
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.72),
-    rgba(255, 255, 255, 0.42)
-  );
-  border-color: rgba(255, 255, 255, 0.65);
-}
-
-html:not(.nav-in-hero).dark .nav-liquid {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 30, 36, 0.66),
-    rgba(18, 18, 24, 0.5)
-  );
-  border-color: rgba(255, 255, 255, 0.09);
 }
 
 /* specular streak that sweeps card on hover */
