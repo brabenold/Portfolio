@@ -10,6 +10,9 @@ void main() {
 // Domain-warped FBM height field rendered as a liquid glass surface:
 // gradient -> pseudo-normal -> refraction offset into a soft procedural
 // backdrop, plus specular, fresnel rim, caustic lift and a pointer lens.
+// The nav bar is drawn as a real refractive lens (rounded-box SDF) inside
+// the same surface — magnification, edge warp, rim highlights — matching
+// the liquid-glass shader technique.
 const FRAG = `
 precision highp float;
 
@@ -17,6 +20,8 @@ uniform vec2  u_res;
 uniform float u_time;
 uniform vec2  u_mouse;
 uniform float u_dark;
+uniform vec4  u_nav;   // nav pill: center xy + size zw, in canvas px (gl y-up)
+uniform float u_navOn; // 1 while the nav overlaps the hero canvas
 
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -82,6 +87,12 @@ vec3 backdrop(vec2 uv, float t) {
   return c;
 }
 
+// rounded-box SDF, negative inside
+float sdPill(vec2 p, vec2 c, vec2 half_, float r) {
+  vec2 q = abs(p - c) - half_ + r;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / u_res;
   vec2 p = (gl_FragCoord.xy - 0.5 * u_res) / min(u_res.x, u_res.y);
@@ -94,7 +105,7 @@ void main() {
   float hy = field(sp + vec2(0.0, e), t);
   vec2 grad = vec2(hx - h, hy - h) / e;
 
-  // pointer lens: a soft dome the cursor pushes into the surface
+  // pointer lens
   vec2 dm = p - u_mouse;
   float lens = exp(-dot(dm, dm) * 5.0);
   grad += normalize(dm + 1e-4) * lens * 1.4;
@@ -102,10 +113,39 @@ void main() {
   vec3 n = normalize(vec3(-grad * 0.10, 1.0));
 
   vec2 refr = uv + n.xy * 0.14;
+
+  // ---- nav pill as a refractive lens embedded in the surface ----
+  float navIn = 0.0;
+  float navSd = 1e5;
+  vec2 navCUv = vec2(0.0);
+  float navT = 0.0;
+  float navR = 0.0;
+  if (u_navOn > 0.5 && u_nav.z > 0.0) {
+    vec2 navC = u_nav.xy;
+    vec2 navHalf = u_nav.zw * 0.5;
+    navR = navHalf.y;
+    navSd = sdPill(gl_FragCoord.xy, navC, navHalf, navR);
+    navIn = smoothstep(1.2, -1.2, navSd);
+    navCUv = navC / u_res;
+    navT = clamp(-navSd / navR, 0.0, 1.0);
+    if (navIn > 0.0) {
+      // magnify: interior samples pull toward center (zoom ~14%), with a
+      // strong outward push right at the rim for that wavy liquid edge
+      float rimBand = smoothstep(-navR * 0.55, 0.0, navSd); // 1 at rim edge
+      vec2 toC = uv - navCUv;
+      vec2 dir = normalize(toC + 1e-6);
+      vec2 lensUv = navCUv + toC * mix(1.0, 0.86, navT);
+      lensUv += dir * rimBand * 0.012;          // rim pucker
+      lensUv += n.xy * 0.05;                     // keep surface shimmer inside
+      refr = mix(refr, lensUv, navIn);
+    }
+  }
+
   vec3 col = backdrop(refr, t);
-  // slight chromatic dispersion at steep slopes
-  col.r = backdrop(refr + n.xy * 0.014, t).r;
-  col.b = backdrop(refr - n.xy * 0.014, t).b;
+  // chromatic dispersion — stronger inside the nav rim
+  float chroma = 0.014 + navIn * smoothstep(-navR * 0.55, 0.0, navSd) * 0.02;
+  col.r = backdrop(refr + n.xy * chroma, t).r;
+  col.b = backdrop(refr - n.xy * chroma, t).b;
 
   vec3 L = normalize(vec3(-0.45, 0.75, 0.65));
   float spec = pow(max(dot(n, normalize(L + vec3(0.0, 0.0, 1.0))), 0.0), 80.0);
@@ -117,6 +157,20 @@ void main() {
         + fres * mix(0.30, 0.55, u_dark)
         + caustic * mix(0.22, 0.50, u_dark)
         + lens * mix(0.10, 0.22, u_dark)) * lightTint;
+
+  // nav lens lighting: bright rim ring, top-slab sheen, faint fresnel fill
+  if (navIn > 0.0 || (u_navOn > 0.5 && navSd < 2.0 && navSd > -3.0)) {
+    float ring = smoothstep(3.5, 0.0, abs(navSd)) * u_navOn;
+    float inner = navIn;
+    // top-edge specular + bottom-edge fill light (thick-glass look)
+    float topEdge = smoothstep(0.0, u_nav.w * 0.5, gl_FragCoord.y - u_nav.y);
+    float botEdge = smoothstep(0.0, -u_nav.w * 0.5, gl_FragCoord.y - u_nav.y);
+    col += ring * mix(0.45, 0.75, u_dark) * lightTint;
+    col += inner * topEdge * mix(0.28, 0.12, u_dark) * lightTint;
+    col += inner * botEdge * mix(0.10, 0.22, u_dark) * lightTint * 0.6;
+    col += inner * pow(1.0 - navT, 4.0) * mix(0.18, 0.3, u_dark) * lightTint; // rim fresnel
+    col += inner * mix(0.03, 0.06, u_dark); // faint body tint
+  }
 
   // gentle vignette keeps edges calm
   col *= 1.0 - 0.22 * dot(p * 0.72, p * 0.72);
@@ -187,6 +241,8 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
     const uTime = gl.getUniformLocation(prog, 'u_time')
     const uMouse = gl.getUniformLocation(prog, 'u_mouse')
     const uDark = gl.getUniformLocation(prog, 'u_dark')
+    const uNav = gl.getUniformLocation(prog, 'u_nav')
+    const uNavOn = gl.getUniformLocation(prog, 'u_navOn')
 
     let dpr = Math.min(window.devicePixelRatio || 1, 1.5)
     let raf = 0
@@ -196,6 +252,8 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
     const mouse = { x: 0, y: -0.4, tx: 0, ty: -0.4 }
     let darkVal = darkRef.current ? 1 : 0
     let frameAvg = 16
+
+    const navEl = () => document.querySelector('[data-nav]')
 
     const resize = () => {
       const w = Math.max(1, Math.floor(canvas.clientWidth * dpr))
@@ -214,6 +272,26 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
       mouse.ty = (r.height / 2 - (ev.clientY - r.top)) / m
     }
 
+    // Feed the nav pill's rect (canvas px, GL y-up) and whether it overlaps.
+    const updateNav = () => {
+      const el = navEl()
+      const cr = canvas.getBoundingClientRect()
+      const nr = el?.getBoundingClientRect()
+      const overlap =
+        nr != null && nr.bottom > cr.top && nr.top < cr.bottom && nr.width > 0
+      if (!overlap) {
+        gl.uniform1f(uNavOn, 0)
+        document.documentElement.classList.remove('nav-in-hero')
+        return
+      }
+      const cx = (nr.left + nr.width / 2 - cr.left) * dpr
+      const cyCss = nr.top + nr.height / 2 - cr.top
+      const cy = canvas.height - cyCss * dpr // flip to GL y-up
+      gl.uniform4f(uNav, cx, cy, nr.width * dpr, nr.height * dpr)
+      gl.uniform1f(uNavOn, 1)
+      document.documentElement.classList.add('nav-in-hero')
+    }
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const frame = () => {
@@ -222,6 +300,7 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
       if (!visible) return
       const t0 = performance.now()
       resize()
+      updateNav()
       mouse.x += (mouse.tx - mouse.x) * 0.06
       mouse.y += (mouse.ty - mouse.y) * 0.06
       darkVal += ((darkRef.current ? 1 : 0) - darkVal) * 0.08
@@ -261,6 +340,7 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
       gl.uniform1f(uTime, 4.2)
       gl.uniform2f(uMouse, 0, 0)
       gl.uniform1f(uDark, darkVal)
+      gl.uniform1f(uNavOn, 0)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     } else {
       raf = requestAnimationFrame(frame)
@@ -273,6 +353,7 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
       document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('resize', resize)
+      document.documentElement.classList.remove('nav-in-hero')
       gl.deleteProgram(prog)
       gl.deleteShader(vs)
       gl.deleteShader(fs)

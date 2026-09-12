@@ -8,7 +8,9 @@ export default function GlassDefs() {
     // pointer-tracked sheen: one delegated listener drives --mx/--my on
     // whichever .liquid-glass element the pointer is over
     const onMove = (e: PointerEvent) => {
-      const el = (e.target as Element | null)?.closest?.('.liquid-glass')
+      const el = (e.target as Element | null)?.closest?.(
+        '.liquid-glass, .nav-liquid',
+      )
       if (!(el instanceof HTMLElement)) return
       const r = el.getBoundingClientRect()
       el.style.setProperty('--mx', `${e.clientX - r.left}px`)

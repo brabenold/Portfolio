@@ -7,7 +7,7 @@ export default function Nav({
 }) {
   return (
     <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-      <nav className="liquid-glass flex w-full max-w-xl items-center justify-between gap-2 rounded-full py-2 pr-2 pl-5 sm:pl-6">
+      <nav data-nav className="nav-liquid flex w-full max-w-xl items-center justify-between gap-2 rounded-full py-2 pr-2 pl-5 sm:pl-6">
         <a
           href="#top"
           className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight"
