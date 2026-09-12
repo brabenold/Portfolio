@@ -1,10 +1,10 @@
-# Andru — Personal Portfolio
+# Brock — Personal Portfolio
 
-High-fidelity personal portfolio for **Brock-Andrew Rabenold** (aka Andru).
+High-fidelity personal portfolio for **Brock**.
 
 Pure liquid-glass aesthetic: an interactive WebGL shader hero (domain-warped
 FBM refraction with specular highlights, caustics and a pointer lens),
-Apple-product-page typography, frosted-glass bento grid, and a seamless
+product-page typography, frosted-glass bento grid, and a seamless
 dark/light mode — frosted materials adapt across both.
 
 ## Stack

@@ -17,7 +17,7 @@ export default function Nav({
             alt=""
             className="h-7 w-7 rounded-full object-cover ring-1 ring-black/5 dark:ring-white/15"
           />
-          Andru
+          Brock
         </a>
 
         <div className="flex items-center gap-1 text-[13px] font-medium text-neutral-600 dark:text-neutral-300">

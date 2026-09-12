@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-const KEY = 'andru-theme'
+const KEY = 'brock-theme'
 
 function systemDark(): boolean {
   return window.matchMedia('(prefers-color-scheme: dark)').matches

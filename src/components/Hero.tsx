@@ -14,31 +14,29 @@ export default function Hero({ dark }: { dark: boolean }) {
           <div className="glass mx-auto mb-8 inline-flex items-center gap-3 rounded-full py-2 pr-5 pl-2">
             <img
               src="/memoji.png"
-              alt="Illustrated avatar of Brock-Andrew Rabenold"
+              alt="Illustrated avatar of Brock"
               className="h-11 w-11 rounded-full object-cover ring-2 ring-white/70 dark:ring-white/20"
             />
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-              Brock-Andrew Rabenold
-              <span className="mx-2 text-neutral-400">·</span>
-              <span className="text-neutral-500 dark:text-neutral-400">aka Andru</span>
+              Brock
             </span>
           </div>
         </Reveal>
 
         <Reveal delay={120}>
           <h1 className="tracking-hero text-balance text-5xl leading-[1.02] font-semibold text-neutral-900 sm:text-7xl md:text-[84px] dark:text-white">
-            People ops by day.
+            Designer at heart.
             <br />
             <span className="bg-gradient-to-r from-indigo-500 via-sky-500 to-teal-400 bg-clip-text text-transparent dark:from-indigo-300 dark:via-sky-300 dark:to-teal-200">
-              Pixels by heart.
+              Engineer in code.
             </span>
           </h1>
         </Reveal>
 
         <Reveal delay={240}>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-600 sm:text-xl dark:text-neutral-300">
-            People Operations Planner at Apple. Studio-arts-trained creative
-            technologist crafting interfaces where craft meets code.
+            Studio-arts-trained creative technologist crafting interfaces
+            where craft meets code.
           </p>
         </Reveal>
 

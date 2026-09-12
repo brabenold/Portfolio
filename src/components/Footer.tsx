@@ -23,7 +23,7 @@ const LINKS = [
   },
   {
     label: 'Email',
-    handle: 'brock.rabenold@gmail.com',
+    handle: 'Drop me a line',
     href: 'mailto:brock.rabenold@gmail.com',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,7 +77,7 @@ export default function Footer() {
       </Reveal>
 
       <p className="mt-10 text-center text-xs text-neutral-400 dark:text-neutral-500">
-        © {new Date().getFullYear()} Brock-Andrew Rabenold · Built with React,
+        © {new Date().getFullYear()} Brock · Built with React,
         GLSL &amp; too much attention to corner radius
       </p>
     </footer>

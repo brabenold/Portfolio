@@ -129,7 +129,7 @@ const SKILLS = [
   'Creative Technology',
   'Visual Design',
   'SwiftData',
-  'People Operations',
+  'WebGL',
   'Motion & Interaction',
   'Prototyping',
   'Design Systems',
@@ -143,8 +143,8 @@ export default function Bento() {
       {/* Work */}
       <section id="work" className="scroll-mt-28 pt-24">
         <Reveal>
-          <Eyebrow>Work &amp; Experience</Eyebrow>
-          <Heading>Built at the intersection of people and pixels.</Heading>
+          <Eyebrow>Work &amp; Craft</Eyebrow>
+          <Heading>Built at the intersection of design and code.</Heading>
         </Reveal>
 
         <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-6">
@@ -156,23 +156,23 @@ export default function Bento() {
                     Currently
                   </p>
                   <h3 className="mt-1.5 text-2xl font-semibold text-neutral-900 dark:text-white">
-                    People Operations Planner
+                    Creative Technologist
                   </h3>
                   <p className="mt-1 text-[15px] font-medium text-neutral-500 dark:text-neutral-400">
-                    Apple
+                    Design engineering, end to end
                   </p>
                 </div>
                 <span className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                  Cupertino, CA
+                  macOS · iOS · Web
                 </span>
               </div>
               <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-300">
-                Planning the people systems behind the products — headcount,
-                org design, and the operational craft that lets great teams do
-                their best work.
+                From concept to shipped product — sketches, prototypes,
+                shaders, and production code. If it lives on a screen, I want
+                it to feel considered.
               </p>
               <div className="mt-6 flex flex-wrap gap-2 text-xs font-medium">
-                {['Org Planning', 'Headcount Systems', 'People Analytics', 'Cross-functional Ops'].map(
+                {['Interface Design', 'Creative Coding', 'Systems Thinking', 'Rapid Prototyping'].map(
                   (t) => (
                     <span
                       key={t}
