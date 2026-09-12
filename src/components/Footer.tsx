@@ -59,7 +59,7 @@ export default function Footer() {
                 href={l.href}
                 target={l.href.startsWith('mailto') ? undefined : '_blank'}
                 rel="noreferrer"
-                className="flex w-full items-center gap-3 rounded-2xl border border-black/8 bg-white/50 px-5 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:bg-white/80 sm:w-auto dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+                className="liquid-glass flex w-full items-center gap-3 rounded-2xl px-5 py-3.5 text-left transition-all hover:-translate-y-0.5 sm:w-auto"
               >
                 <span className="text-neutral-700 dark:text-neutral-200">{l.icon}</span>
                 <span>

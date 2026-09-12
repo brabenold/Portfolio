@@ -162,7 +162,7 @@ export default function Bento() {
                     Design engineering, end to end
                   </p>
                 </div>
-                <span className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                <span className="liquid-glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                   macOS · iOS · Web
                 </span>
               </div>
@@ -307,7 +307,7 @@ export default function Bento() {
                 {SKILLS.map((s) => (
                   <span
                     key={s}
-                    className="glass rounded-full px-4 py-2 text-[13px] font-medium text-neutral-700 transition-transform hover:scale-105 dark:text-neutral-200"
+                    className="liquid-glass rounded-full px-4 py-2 text-[13px] font-medium text-neutral-700 transition-transform hover:scale-105 dark:text-neutral-200"
                   >
                     {s}
                   </span>
