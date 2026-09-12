@@ -41,11 +41,11 @@ export default function GlassDefs() {
             seed="8"
             result="noise"
           />
-          <feGaussianBlur in="noise" stdDeviation="1.4" result="soft" />
+          <feGaussianBlur in="noise" stdDeviation="1.8" result="soft" />
           <feDisplacementMap
             in="SourceGraphic"
             in2="soft"
-            scale="26"
+            scale="72"
             xChannelSelector="R"
             yChannelSelector="G"
           />
