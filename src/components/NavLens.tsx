@@ -87,9 +87,9 @@ export default function NavLens() {
     >
       <defs>
         {lenses.map((lens) => {
-          const s =
-            (STRENGTH * Math.sqrt(lens.w * lens.w + lens.h * lens.h)) /
-            Math.SQRT2
+          // Scale relative to element height so every lens warps its rim by
+          // the same proportion — matches the nav's look at any size.
+          const s = STRENGTH * lens.h * 9
           const scales = [s * (1 + 0.2 * CHROMA), s * (1 + 0.1 * CHROMA), s]
           return (
             <filter

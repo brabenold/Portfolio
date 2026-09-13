@@ -11,7 +11,7 @@ export default function Hero({ dark }: { dark: boolean }) {
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 pt-24 pb-16 text-center">
         <Reveal>
-          <div data-glass className="liquid-glass mx-auto mb-8 inline-flex items-center gap-3 rounded-full py-2 pr-5 pl-2">
+          <div data-glass className="nav-liquid mx-auto mb-8 inline-flex items-center gap-3 rounded-full py-2 pr-5 pl-2">
             <img
               src="/memoji.png"
               alt="Illustrated avatar of Brock"
@@ -51,7 +51,7 @@ export default function Hero({ dark }: { dark: boolean }) {
             <a
               href="#connect"
               data-glass
-              className="liquid-glass rounded-full px-6 py-3 text-sm font-semibold text-neutral-800 transition-transform hover:scale-[1.03] dark:text-neutral-100"
+              className="nav-liquid rounded-full px-6 py-3 text-sm font-semibold text-neutral-800 transition-transform hover:scale-[1.03] dark:text-neutral-100"
             >
               Say hello
             </a>
