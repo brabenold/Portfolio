@@ -284,6 +284,8 @@ export default function LiquidGlass({ dark }: { dark: boolean }) {
   return (
     <canvas
       ref={canvasRef}
+      data-depth="0.12"
+      data-scale="1.06"
       className="absolute inset-0 h-full w-full"
       aria-hidden="true"
     />

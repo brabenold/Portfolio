@@ -11,7 +11,7 @@ export default function Hero({ dark }: { dark: boolean }) {
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 pt-24 pb-16 text-center">
         <Reveal>
-          <div data-glass className="nav-liquid mx-auto mb-8 inline-flex items-center gap-3 rounded-full py-2 pr-5 pl-2">
+          <div data-glass data-depth="0.5" className="nav-liquid mx-auto mb-8 inline-flex items-center gap-3 rounded-full py-2 pr-5 pl-2">
             <img
               src="/memoji.png"
               alt="Illustrated avatar of Brock"
@@ -41,7 +41,10 @@ export default function Hero({ dark }: { dark: boolean }) {
         </Reveal>
 
         <Reveal delay={360}>
-          <div className="mt-10 flex items-center justify-center gap-3">
+          <div
+            data-depth="0.65"
+            className="mt-10 flex items-center justify-center gap-3"
+          >
             <a
               href="#projects"
               className="rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.03] dark:bg-white dark:text-neutral-900"
