@@ -179,13 +179,6 @@ body {
   backdrop-filter: blur(20px) saturate(180%);
 }
 
-@supports ((backdrop-filter: url("#x")) or (-webkit-backdrop-filter: url("#x"))) {
-  .nav-liquid {
-    -webkit-backdrop-filter: url(#nav-lens) saturate(150%);
-    backdrop-filter: url(#nav-lens) saturate(150%);
-  }
-}
-
 .dark .nav-liquid {
   background: rgba(20, 20, 28, 0.06);
   border-color: rgba(255, 255, 255, 0.12);

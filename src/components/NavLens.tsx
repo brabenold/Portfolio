@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { renderDisplacementMap } from 'liquid-glass-web-react'
 
-// Replicates liquid-glass-web-react's filter chain as a *backdrop* filter:
-// the nav pill itself is the lens, so the live page behind it (hero shader
-// included) is refracted with per-channel chromatic aberration + a baked
+// Replicates liquid-glass-web-react's filter chain as *backdrop* filters:
+// each [data-glass] element becomes a lens, refracting the live page behind
+// it (hero shader included) with per-channel chromatic aberration + a baked
 // specular edge — the same displacement-map technique as the reference demo.
 
 const STRENGTH = 0.08
@@ -18,19 +18,27 @@ const CHANNELS = [
   '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0',
 ]
 
+type Lens = { id: string; w: number; h: number; map: string }
+
 export default function NavLens() {
-  const [state, setState] = useState<{ w: number; h: number; map: string } | null>(
-    null,
-  )
+  const [lenses, setLenses] = useState<Lens[]>([])
 
   useEffect(() => {
-    const nav = document.querySelector('[data-nav]')
-    if (!nav) return
+    const supported =
+      CSS.supports('backdrop-filter', 'url("#x")') ||
+      CSS.supports('-webkit-backdrop-filter', 'url("#x")')
+    if (!supported) return
 
-    const build = () => {
-      const r = nav.getBoundingClientRect()
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-glass]'),
+    )
+    if (els.length === 0) return
+
+    const build = (el: HTMLElement, i: number) => {
+      const r = el.getBoundingClientRect()
       const w = Math.max(1, Math.round(r.width))
       const h = Math.max(1, Math.round(r.height))
+      if (w <= 1 || h <= 1) return
       const map = renderDisplacementMap({
         size: 256,
         halfWidth: w / 2,
@@ -47,20 +55,28 @@ export default function NavLens() {
         edgeExponent: 1.5,
         specularAngle: 130,
       })
-      setState({ w, h, map })
+      const id = `glass-lens-${i}`
+      setLenses((prev) => {
+        const next = prev.filter((l) => l.id !== id)
+        next.push({ id, w, h, map })
+        return next.sort((a, b) => a.id.localeCompare(b.id))
+      })
+      el.style.backdropFilter = `url(#${id}) saturate(150%)`
+      el.style.setProperty('-webkit-backdrop-filter', `url(#${id}) saturate(150%)`)
     }
 
-    build()
-    const ro = new ResizeObserver(build)
-    ro.observe(nav)
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const i = els.indexOf(e.target as HTMLElement)
+        if (i >= 0) build(e.target as HTMLElement, i)
+      }
+    })
+    els.forEach((el, i) => {
+      build(el, i)
+      ro.observe(el)
+    })
     return () => ro.disconnect()
   }, [])
-
-  if (!state) return null
-
-  const { w, h, map } = state
-  const s = (STRENGTH * Math.sqrt(w * w + h * h)) / Math.SQRT2
-  const scales = [s * (1 + 0.2 * CHROMA), s * (1 + 0.1 * CHROMA), s]
 
   return (
     <svg
@@ -70,88 +86,97 @@ export default function NavLens() {
       aria-hidden="true"
     >
       <defs>
-        <filter
-          id="nav-lens"
-          filterUnits="userSpaceOnUse"
-          primitiveUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width={w}
-          height={h}
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodColor="rgb(128,128,128)" result="mapBg" />
-          <feImage
-            href={map}
-            preserveAspectRatio="none"
-            x="0"
-            y="0"
-            width={w}
-            height={h}
-            result="rawMap"
-          />
-          <feComposite
-            in="rawMap"
-            in2="mapBg"
-            operator="over"
-            result="map"
-          />
-          {CHANNELS.map((_, i) => (
-            <feDisplacementMap
-              key={`d${i}`}
-              in="SourceGraphic"
-              in2="map"
-              scale={scales[i]}
-              xChannelSelector="R"
-              yChannelSelector="G"
-              result={`disp${i}`}
-            />
-          ))}
-          {CHANNELS.map((m, i) => (
-            <feColorMatrix
-              key={`c${i}`}
-              in={`disp${i}`}
-              type="matrix"
-              values={m}
-              result={`ch${i}`}
-            />
-          ))}
-          <feComposite
-            in="ch0"
-            in2="ch1"
-            operator="arithmetic"
-            k1="0"
-            k2="1"
-            k3="1"
-            k4="0"
-            result="rg"
-          />
-          <feComposite
-            in="rg"
-            in2="ch2"
-            operator="arithmetic"
-            k1="0"
-            k2="1"
-            k3="1"
-            k4="0"
-            result="lensResult"
-          />
-          <feColorMatrix
-            in="map"
-            type="matrix"
-            values={`0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 1 0 ${-128 / 255}`}
-            result="specMask"
-          />
-          <feComposite
-            in="specMask"
-            in2="lensResult"
-            operator="arithmetic"
-            k1="0"
-            k2={SPECULAR}
-            k3="1"
-            k4="0"
-          />
-        </filter>
+        {lenses.map((lens) => {
+          const s =
+            (STRENGTH * Math.sqrt(lens.w * lens.w + lens.h * lens.h)) /
+            Math.SQRT2
+          const scales = [s * (1 + 0.2 * CHROMA), s * (1 + 0.1 * CHROMA), s]
+          return (
+            <filter
+              key={lens.id}
+              id={lens.id}
+              filterUnits="userSpaceOnUse"
+              primitiveUnits="userSpaceOnUse"
+              x="0"
+              y="0"
+              width={lens.w}
+              height={lens.h}
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodColor="rgb(128,128,128)" result="mapBg" />
+              <feImage
+                href={lens.map}
+                preserveAspectRatio="none"
+                x="0"
+                y="0"
+                width={lens.w}
+                height={lens.h}
+                result="rawMap"
+              />
+              <feComposite
+                in="rawMap"
+                in2="mapBg"
+                operator="over"
+                result="map"
+              />
+              {CHANNELS.map((_, i) => (
+                <feDisplacementMap
+                  key={`d${i}`}
+                  in="SourceGraphic"
+                  in2="map"
+                  scale={scales[i]}
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                  result={`disp${i}`}
+                />
+              ))}
+              {CHANNELS.map((m, i) => (
+                <feColorMatrix
+                  key={`c${i}`}
+                  in={`disp${i}`}
+                  type="matrix"
+                  values={m}
+                  result={`ch${i}`}
+                />
+              ))}
+              <feComposite
+                in="ch0"
+                in2="ch1"
+                operator="arithmetic"
+                k1="0"
+                k2="1"
+                k3="1"
+                k4="0"
+                result="rg"
+              />
+              <feComposite
+                in="rg"
+                in2="ch2"
+                operator="arithmetic"
+                k1="0"
+                k2="1"
+                k3="1"
+                k4="0"
+                result="lensResult"
+              />
+              <feColorMatrix
+                in="map"
+                type="matrix"
+                values={`0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 1 0 ${-128 / 255}`}
+                result="specMask"
+              />
+              <feComposite
+                in="specMask"
+                in2="lensResult"
+                operator="arithmetic"
+                k1="0"
+                k2={SPECULAR}
+                k3="1"
+                k4="0"
+              />
+            </filter>
+          )
+        })}
       </defs>
     </svg>
   )
